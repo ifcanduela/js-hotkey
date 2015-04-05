@@ -1,6 +1,6 @@
 # Hotkey
 
-A simple JavsScript hotkey helper.
+A simple JavaScript hotkey helper.
 
 Attach a hotkey like this:
 
