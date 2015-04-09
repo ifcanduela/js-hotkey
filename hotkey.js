@@ -7,7 +7,7 @@
  * using the plus sign (`+`) as a separator, like this:
  *
  *     hotkey('body', 'ctrl + alt + h', function (ev) {
- *     	   alert("You pressed Ctrl, Alt and H in your keyboard");
+ *         alert("You pressed Ctrl, Alt and H in your keyboard");
  *     });
  * 
  * The signature for the callback is this:
@@ -23,57 +23,64 @@
  * @return {boolean}                   False if a key is not provided
  */
 function hotkey(selector, keyCombination, callbackFunction) {
-	var checkCtrlKey = false,
-		checkAltKey = false,
-		checkShiftKey = false,
-		key = false;
+    var checkCtrlKey = false,
+        checkAltKey = false,
+        checkShiftKey = false,
+        key = false;
 
-	// split the key combination into individual keys
-	var keyList = keyCombination.split(/\s*\+\s*/);
+    // account for missing first argument
+    if (arguments.length === 2) {
+        callbackFunction = keyCombination;
+        keyCombination = selector;
+        selector = 'body';
+    }
 
-	for (var k in keyList) {
-		// combo requires CTRL key
-		if (keyList[k] === 'ctrl') {
-			checkCtrlKey = true;
-			continue;
-		}
+    // split the key combination into individual keys
+    var keyList = keyCombination.split(/\s*\+\s*/);
 
-		// combo requires ALT key
-		if (keyList[k] === 'alt') {
-			checkAltKey = true;
-			continue;
-		}
+    for (var k in keyList) {
+        // combo requires CTRL key
+        if (keyList[k] === 'ctrl') {
+            checkCtrlKey = true;
+            continue;
+        }
 
-		// combo requires SHIFT key
-		if (keyList[k] === 'shift') {
-			checkShiftKey = true;
-			continue;
-		}
+        // combo requires ALT key
+        if (keyList[k] === 'alt') {
+            checkAltKey = true;
+            continue;
+        }
 
-		// only one trigger key is allowed per hotkey, so it will be overwritten
-		// if more than one is specified
-		key = keyList[k];
-	}
+        // combo requires SHIFT key
+        if (keyList[k] === 'shift') {
+            checkShiftKey = true;
+            continue;
+        }
 
-	if (!key) {
-		return false;
-	}
+        // only one trigger key is allowed per hotkey, so it will be overwritten
+        // if more than one is specified
+        key = keyList[k];
+    }
 
-	// select all elements that match the selector and loop through them
-	[].forEach.call(document.querySelectorAll(selector), function (el) {
-		// add a KEYPRESS event listener to each element
-		el.addEventListener('keypress', function (ev) {
-			// exit early if the specified modifier key were not used
-			if (checkCtrlKey && !ev.ctrlKey) return;
-			if (checkAltKey && !ev.altKey) return;
-			if (checkShiftKey && !ev.shiftKey) return;
+    if (!key) {
+        return false;
+    }
 
-			// call the callback function if the key matches
-			if (ev.key === key) {
-				return callbackFunction.call(ev.target, ev);
-			}
-	  	}, false);
-	});
+    // select all elements that match the selector and loop through them
+    [].forEach.call(document.querySelectorAll(selector), function (el) {
+        // add a KEYPRESS event listener to each element
+        el.addEventListener('keypress', function (ev) {
+            // exit early if the specified modifier key were not used
+            if (checkCtrlKey && !ev.ctrlKey) return;
+            if (checkAltKey && !ev.altKey) return;
+            if (checkShiftKey && !ev.shiftKey) return;
 
-	return true;
-};
+            // call the callback function if the key matches
+            if (ev.key === key) {
+                return callbackFunction.call(ev.target, ev);
+            }
+        }, false);
+    });
+
+    return true;
+}
